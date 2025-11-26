@@ -49,7 +49,7 @@ const getFilteredJoyas = async ({
 
 	let consulta = 'SELECT * FROM inventario';
 	if (filtros.length > 0) {
-		filtros = filtros.join(' AND ')
+		filtros = filtros.join(' AND ');
 		consulta += ` WHERE ${filtros}`;
 	}
 
@@ -58,4 +58,21 @@ const getFilteredJoyas = async ({
 	return result.rows;
 };
 
-export const joyasModel = { getAllJoyas, getFilteredJoyas };
+const getJoyaByID = async (id) => {
+	/* const SQLquery = {
+		text: 'SELECT FROM inventario WHERE id = $1',
+		values: [id],
+	};
+	console.log(SQLquery); //para ver
+	const result = await pool.query(SQLquery);
+	return result.rows[0]; */
+	const query = "SELECT * FROM inventario WHERE id = $1"
+	const {rows} = await pool.query(query,[id])
+	return rows[0]
+};
+
+export const joyasModel = {
+	getAllJoyas,
+	getFilteredJoyas,
+	getJoyaByID,
+};
