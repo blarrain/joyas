@@ -22,31 +22,40 @@ const getFilteredJoyas = async ({
 	categoria,
 	metal,
 }) => {
-	const filtros = [];
+	let filtros = [];
+	const values = [];
+
+	const addFilter = (column, operator, value) => {
+		values.push(value);
+		const { length } = filtros;
+		filtros.push(`${column} ${operator} $${length + 1}`);
+	};
 
 	if (precio_min) {
-		filtros.push(`precio >= ${precio_min}`);
+		addFilter('precio', '>=', precio_min);
 	}
 
 	if (precio_max) {
-		filtros.push(`precio <= ${precio_max}`);
+		addFilter('precio', '<=', precio_max);
 	}
 
 	if (categoria) {
-		filtros.push(`categoria = '${categoria}'`);
+		addFilter('categoria', '=', categoria);
 	}
 
 	if (metal) {
-	filtros.push(`metal = '${metal}'`)}
-
-	let consulta = "SELECT * FROM inventario"
-	if (filtros.length > 0) {
-		consulta += ' WHERE ' + filtros.join(' AND ')
+		addFilter('metal', '=', metal);
 	}
 
-	console.log(consulta); //para ver
-	const result = await pool.query(consulta)
-	return result.rows
+	let consulta = 'SELECT * FROM inventario';
+	if (filtros.length > 0) {
+		filtros = filtros.join(' AND ')
+		consulta += ` WHERE ${filtros}`;
+	}
+
+	// console.log(consulta); //para ver
+	const result = await pool.query(consulta, values);
+	return result.rows;
 };
 
 export const joyasModel = { getAllJoyas, getFilteredJoyas };
